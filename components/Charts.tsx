@@ -7,7 +7,26 @@ import {
 } from 'recharts';
 import { ChartDataPoint, Anomaly, BrandStat, Theme, TimelineDataPoint, PieChartDataPoint, HeatmapDataPoint, Language } from '../types';
 import { AlertCircle, Smartphone, Wrench } from 'lucide-react';
-import { translations } from '../App';
+import { translations } from '../utils/translations';
+
+// Helper for translating English short months (from backend) to current language
+const translateMonth = (month: string, lang: Language) => {
+  const map: Record<string, Record<string, string>> = {
+    'Jan': { es: 'Ene', de: 'Jan', en: 'Jan' },
+    'Feb': { es: 'Feb', de: 'Feb', en: 'Feb' },
+    'Mar': { es: 'Mar', de: 'Mär', en: 'Mar' },
+    'Apr': { es: 'Abr', de: 'Apr', en: 'Apr' },
+    'May': { es: 'May', de: 'Mai', en: 'May' },
+    'Jun': { es: 'Jun', de: 'Jun', en: 'Jun' },
+    'Jul': { es: 'Jul', de: 'Jul', en: 'Jul' },
+    'Aug': { es: 'Ago', de: 'Aug', en: 'Aug' },
+    'Sep': { es: 'Sep', de: 'Sep', en: 'Sep' },
+    'Oct': { es: 'Oct', de: 'Okt', en: 'Oct' },
+    'Nov': { es: 'Nov', de: 'Nov', en: 'Nov' },
+    'Dec': { es: 'Dic', de: 'Dez', en: 'Dec' },
+  };
+  return map[month]?.[lang] || month;
+};
 
 interface MainRadarProps {
   data: ChartDataPoint[];
@@ -22,20 +41,20 @@ const CustomRadarTooltip = ({ active, payload, label }: any) => {
       <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border border-slate-100 dark:border-slate-700 p-3 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] max-w-[200px] z-50 pointer-events-none">
         <h4 className="font-bold text-slate-800 dark:text-white mb-2 border-b border-slate-100 dark:border-slate-700 pb-1 text-xs">{data.name}</h4>
         <div className="space-y-2 text-[10px]">
-           <div className="flex justify-between items-center">
-              <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1 font-medium"><Wrench size={10} className="text-blue-500" /> Costo Avg</span>
-              <span className="font-bold text-slate-900 dark:text-slate-200 text-xs">€{data.originalValue?.toFixed(0) || data.value}</span>
-           </div>
-           {data.topModel && (
-             <div className="bg-slate-50 dark:bg-slate-700 p-2 rounded-lg border border-slate-100 dark:border-slate-600">
-                <div className="flex items-center gap-1 mb-1 text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider text-[9px]">
-                  <Smartphone size={9} /> 
-                  Modelo Frecuente
-                </div>
-                <div className="font-bold text-slate-700 dark:text-slate-200 text-xs mb-0.5">{data.topModel}</div>
-                <div className="text-[9px] text-slate-400 dark:text-slate-500">Reparación est. €{data.topModelPrice}</div>
-             </div>
-           )}
+          <div className="flex justify-between items-center">
+            <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1 font-medium"><Wrench size={10} className="text-blue-500" /> Costo Avg</span>
+            <span className="font-bold text-slate-900 dark:text-slate-200 text-xs">€{data.originalValue?.toFixed(0) || data.value}</span>
+          </div>
+          {data.topModel && (
+            <div className="bg-slate-50 dark:bg-slate-700 p-2 rounded-lg border border-slate-100 dark:border-slate-600">
+              <div className="flex items-center gap-1 mb-1 text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider text-[9px]">
+                <Smartphone size={9} />
+                Modelo Frecuente
+              </div>
+              <div className="font-bold text-slate-700 dark:text-slate-200 text-xs mb-0.5">{data.topModel}</div>
+              <div className="text-[9px] text-slate-400 dark:text-slate-500">Reparación est. €{data.topModelPrice}</div>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -77,8 +96,8 @@ export const MainRadarChart: React.FC<MainRadarProps> = React.memo(({ data, them
           <RadarChart cx="50%" cy="50%" outerRadius="75%" data={data}>
             <defs>
               <linearGradient id="radarFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={primaryColor} stopOpacity={0.5}/>
-                <stop offset="95%" stopColor={primaryColor} stopOpacity={0.1}/>
+                <stop offset="5%" stopColor={primaryColor} stopOpacity={0.5} />
+                <stop offset="95%" stopColor={primaryColor} stopOpacity={0.1} />
               </linearGradient>
             </defs>
             <PolarGrid gridType="polygon" stroke={gridColor} strokeWidth={1} strokeDasharray="4 4" />
@@ -131,36 +150,36 @@ export const SimpleBarChart: React.FC<{ data: ChartDataPoint[], color: string, t
       <div className="absolute inset-0">
         <ResponsiveContainer width="100%" height="100%" debounce={50}>
           <BarChart data={data} layout="vertical" margin={{ left: 0, right: 20, bottom: 0, top: 0 }}>
-             <XAxis type="number" hide />
-             <YAxis
+            <XAxis type="number" hide />
+            <YAxis
               dataKey="name"
               type="category"
               width={80}
-              tick={{fontSize: 7, fill: textColor, fontWeight: 600}}
+              tick={{ fontSize: 7, fill: textColor, fontWeight: 600 }}
               tickLine={false}
               axisLine={false}
               interval={0}
-             />
-             <Tooltip
-              cursor={{fill: mutedColor, radius: 4}}
+            />
+            <Tooltip
+              cursor={{ fill: mutedColor, radius: 4 }}
               contentStyle={{
-                  borderRadius: '12px',
-                  border: 'none',
-                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                  fontSize: '11px',
-                  backgroundColor: cardColor,
-                  color: foregroundColor
+                borderRadius: '12px',
+                border: 'none',
+                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                fontSize: '11px',
+                backgroundColor: cardColor,
+                color: foregroundColor
               }}
               formatter={(value: number) => [`${value}%`, 'Retención']}
-             />
-             <Bar
+            />
+            <Bar
               dataKey="value"
               radius={[0, 4, 4, 0]}
               barSize={12}
               fill={primaryColor}
               animationDuration={1500}
               background={{ fill: mutedColor, radius: 4 }}
-             />
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -169,62 +188,62 @@ export const SimpleBarChart: React.FC<{ data: ChartDataPoint[], color: string, t
 });
 
 export const MetricsTable: React.FC<{ data: BrandStat[], theme: Theme, t: any }> = React.memo(({ data, theme, t }) => {
-    return (
-        <div className="w-full h-full overflow-hidden">
-            <table className="w-full text-left border-collapse">
-                <thead className="sticky top-0 bg-white dark:bg-slate-800 z-10 shadow-sm">
-                    <tr className="border-b border-slate-100 dark:border-slate-700">
-                        <th className="py-2.5 px-2 font-bold text-slate-400 dark:text-slate-500 text-[9px] uppercase tracking-wider bg-white dark:bg-slate-800">{t.claims.brand}</th>
-                        <th className="py-2.5 px-2 font-bold text-slate-400 dark:text-slate-500 text-[9px] uppercase tracking-wider text-right bg-white dark:bg-slate-800">{t.claims.claims}</th>
-                        <th className="py-2.5 px-2 font-bold text-slate-400 dark:text-slate-500 text-[9px] uppercase tracking-wider text-right bg-white dark:bg-slate-800">{t.claims.avg_cost}</th>
-                        <th className="py-2.5 px-2 font-bold text-slate-400 dark:text-slate-500 text-[9px] uppercase tracking-wider text-right bg-white dark:bg-slate-800">{t.claims.retention}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {data.map((item, idx) => (
-                        <tr key={idx} className="group hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-50/50 dark:border-slate-700/50">
-                            <td className="py-2 px-2 font-bold text-slate-800 dark:text-slate-200 text-[10px]">{item.brand}</td>
-                            <td className="py-2 px-2 text-slate-600 dark:text-slate-400 text-right font-medium text-[10px]">{item.claimCount}</td>
-                            <td className="py-2 px-2 text-slate-600 dark:text-slate-400 text-right font-medium text-[10px]">€{item.avgCost.toFixed(0)}</td>
-                            <td className="py-2 px-2 text-right">
-                                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${item.retentionRate > 70 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'}`}>
-                                    {item.retentionRate.toFixed(0)}%
-                                </span>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    );
+  return (
+    <div className="w-full h-full overflow-hidden">
+      <table className="w-full text-left border-collapse">
+        <thead className="sticky top-0 bg-white dark:bg-slate-800 z-10 shadow-sm">
+          <tr className="border-b border-slate-100 dark:border-slate-700">
+            <th className="py-2.5 px-2 font-bold text-slate-400 dark:text-slate-500 text-[9px] uppercase tracking-wider bg-white dark:bg-slate-800">{t.claims.brand}</th>
+            <th className="py-2.5 px-2 font-bold text-slate-400 dark:text-slate-500 text-[9px] uppercase tracking-wider text-right bg-white dark:bg-slate-800">{t.claims.claims}</th>
+            <th className="py-2.5 px-2 font-bold text-slate-400 dark:text-slate-500 text-[9px] uppercase tracking-wider text-right bg-white dark:bg-slate-800">{t.claims.avg_cost}</th>
+            <th className="py-2.5 px-2 font-bold text-slate-400 dark:text-slate-500 text-[9px] uppercase tracking-wider text-right bg-white dark:bg-slate-800">{t.claims.retention}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, idx) => (
+            <tr key={idx} className="group hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-50/50 dark:border-slate-700/50">
+              <td className="py-2 px-2 font-bold text-slate-800 dark:text-slate-200 text-[10px]">{item.brand}</td>
+              <td className="py-2 px-2 text-slate-600 dark:text-slate-400 text-right font-medium text-[10px]">{item.claimCount}</td>
+              <td className="py-2 px-2 text-slate-600 dark:text-slate-400 text-right font-medium text-[10px]">€{item.avgCost.toFixed(0)}</td>
+              <td className="py-2 px-2 text-right">
+                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${item.retentionRate > 70 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'}`}>
+                  {item.retentionRate.toFixed(0)}%
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 });
 
 export const AnomalyList: React.FC<{ anomalies: Anomaly[]; lang?: Language }> = React.memo(({ anomalies, lang = 'es' }) => {
-    const t = translations[lang];
-    if (anomalies.length === 0) return <div className="text-slate-400 dark:text-slate-500 text-[10px] py-4">{t.claims.no_anomalies_detected}</div>;
+  const t = translations[lang];
+  if (anomalies.length === 0) return <div className="text-slate-400 dark:text-slate-500 text-[10px] py-4">{t.claims.no_anomalies_detected}</div>;
 
-    return (
-        <div className="space-y-2">
-            {anomalies.map((anomaly, idx) => (
-                <div key={idx} className="flex items-start p-2.5 bg-red-50/50 dark:bg-red-900/10 rounded-xl border border-red-50 dark:border-red-900/20 transition-all hover:bg-red-50 dark:hover:bg-red-900/20 hover:shadow-sm">
-                    <div className="mt-0.5">
-                        <AlertCircle size={12} className="text-red-500 dark:text-red-400" />
-                    </div>
-                    <div className="ml-2.5 flex-1 min-w-0">
-                        <div className="flex justify-between items-center mb-0.5">
-                            <h4 className="text-[10px] font-bold text-slate-800 dark:text-slate-200 truncate pr-2" title={anomaly.item}>{anomaly.item}</h4>
-                            <span className="text-[10px] font-bold text-red-600 dark:text-red-400 whitespace-nowrap">€{anomaly.cost}</span>
-                        </div>
-                        <p className="text-[9px] text-red-400 dark:text-red-300 leading-tight truncate" title={anomaly.reason}>{anomaly.reason}</p>
-                    </div>
-                </div>
-            ))}
+  return (
+    <div className="space-y-2">
+      {anomalies.map((anomaly, idx) => (
+        <div key={idx} className="flex items-start p-2.5 bg-red-50/50 dark:bg-red-900/10 rounded-xl border border-red-50 dark:border-red-900/20 transition-all hover:bg-red-50 dark:hover:bg-red-900/20 hover:shadow-sm">
+          <div className="mt-0.5">
+            <AlertCircle size={12} className="text-red-500 dark:text-red-400" />
+          </div>
+          <div className="ml-2.5 flex-1 min-w-0">
+            <div className="flex justify-between items-center mb-0.5">
+              <h4 className="text-[10px] font-bold text-slate-800 dark:text-slate-200 truncate pr-2" title={anomaly.item}>{anomaly.item}</h4>
+              <span className="text-[10px] font-bold text-red-600 dark:text-red-400 whitespace-nowrap">€{anomaly.cost}</span>
+            </div>
+            <p className="text-[9px] text-red-400 dark:text-red-300 leading-tight truncate" title={anomaly.reason}>{anomaly.reason}</p>
+          </div>
         </div>
-    );
+      ))}
+    </div>
+  );
 });
 
 // Line Chart for Temporal Trends
-export const TrendLineChart: React.FC<{ data: TimelineDataPoint[], theme: Theme }> = React.memo(({ data, theme }) => {
+export const TrendLineChart: React.FC<{ data: TimelineDataPoint[], theme: Theme, t: any, lang: Language }> = React.memo(({ data, theme, t, lang }) => {
   const getColor = (varName: string, fallback: string) => {
     if (typeof window !== 'undefined') {
       return getComputedStyle(document.documentElement).getPropertyValue(varName).trim() || fallback;
@@ -250,6 +269,7 @@ export const TrendLineChart: React.FC<{ data: TimelineDataPoint[], theme: Theme 
               tick={{ fill: textColor, fontSize: 10, fontWeight: 600 }}
               tickLine={false}
               axisLine={{ stroke: gridColor }}
+              tickFormatter={(val) => translateMonth(val, lang)}
             />
             <YAxis
               yAxisId="left"
@@ -274,6 +294,7 @@ export const TrendLineChart: React.FC<{ data: TimelineDataPoint[], theme: Theme 
                 backgroundColor: cardColor,
                 color: foregroundColor
               }}
+              labelFormatter={(label) => translateMonth(label, lang)}
             />
             <Legend
               wrapperStyle={{ fontSize: '10px', fontWeight: 600 }}
@@ -287,7 +308,7 @@ export const TrendLineChart: React.FC<{ data: TimelineDataPoint[], theme: Theme 
               strokeWidth={2.5}
               dot={{ fill: primaryColor, r: 4 }}
               activeDot={{ r: 6, fill: primaryColor, stroke: '#fff', strokeWidth: 2 }}
-              name="Costo (€)"
+              name={t.summary.cost}
             />
             <Line
               yAxisId="right"
@@ -297,7 +318,7 @@ export const TrendLineChart: React.FC<{ data: TimelineDataPoint[], theme: Theme 
               strokeWidth={2.5}
               dot={{ fill: accentColor, r: 4 }}
               activeDot={{ r: 6, fill: accentColor, stroke: '#fff', strokeWidth: 2 }}
-              name="Siniestros"
+              name={t.claims.claims}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -415,7 +436,7 @@ export const CostPieChart: React.FC<{ data: PieChartDataPoint[], theme: Theme }>
 });
 
 // Heatmap for Brand-Month Frequency
-export const BrandMonthHeatmap: React.FC<{ data: HeatmapDataPoint[], theme: Theme }> = React.memo(({ data, theme }) => {
+export const BrandMonthHeatmap: React.FC<{ data: HeatmapDataPoint[], theme: Theme, lang: Language }> = React.memo(({ data, theme, lang }) => {
   const getColor = (varName: string, fallback: string) => {
     if (typeof window !== 'undefined') {
       return getComputedStyle(document.documentElement).getPropertyValue(varName).trim() || fallback;
@@ -457,7 +478,7 @@ export const BrandMonthHeatmap: React.FC<{ data: HeatmapDataPoint[], theme: Them
               key={idx}
               className="text-[8px] font-bold text-center p-1 text-slate-600 dark:text-slate-400 uppercase tracking-wide"
             >
-              {month}
+              {translateMonth(month, lang)}
             </div>
           ))}
 
@@ -477,7 +498,7 @@ export const BrandMonthHeatmap: React.FC<{ data: HeatmapDataPoint[], theme: Them
                       backgroundColor: getHeatColor(frequency),
                       color: frequency > maxFrequency * 0.5 ? '#fff' : textColor
                     }}
-                    title={`${brand} - ${month}: ${frequency} siniestros`}
+                    title={`${brand} - ${translateMonth(month, lang)}: ${frequency} siniestros`}
                   >
                     {frequency > 0 ? frequency : ''}
                   </div>

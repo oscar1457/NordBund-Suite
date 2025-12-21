@@ -5,16 +5,16 @@ const parseNumericValue = (val: string): number | null => {
     if (!val) return null;
     const clean = val.replace(/[^0-9.,-]/g, '');
     if (!clean) return null;
-    
+
     let normalized = clean;
     if (clean.includes(',') && clean.includes('.')) {
         if (clean.lastIndexOf(',') > clean.lastIndexOf('.')) {
-             normalized = clean.replace(/\./g, '').replace(',', '.');
+            normalized = clean.replace(/\./g, '').replace(',', '.');
         } else {
-             normalized = clean.replace(/,/g, '');
+            normalized = clean.replace(/,/g, '');
         }
     } else if (clean.includes(',')) {
-         normalized = clean.replace(',', '.');
+        normalized = clean.replace(',', '.');
     }
 
     const num = parseFloat(normalized);
@@ -40,43 +40,27 @@ const parseRawText = (text: string): string[][] => {
     });
 
     return lines.map(line => {
-        if (line.includes('"')) {
-             return line.split(bestSep).map(c => c.replace(/^"|"$/g, '').trim());
+        const result: string[] = [];
+        let cur = '';
+        let inQuotes = false;
+
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            if (char === '"') {
+                inQuotes = !inQuotes;
+            } else if (char === bestSep && !inQuotes) {
+                result.push(cur.trim());
+                cur = '';
+            } else {
+                cur += char;
+            }
         }
-        return line.split(bestSep).map(c => c.trim());
+        result.push(cur.trim());
+        return result.map(c => c.replace(/^"|"$/g, '').trim());
     });
 };
 
-const getTranslations = (lang: Language) => {
-    switch (lang) {
-        case 'de':
-            return {
-                highPrice: (avg: string) => `Preis deutlich über dem Durchschnitt (€${avg})`,
-                marketMedia: 'Marktdurchschnitt',
-                target: 'Ziel',
-                limit: 'Grenze'
-            };
-        case 'en':
-            return {
-                highPrice: (avg: string) => `Price significantly above average (€${avg})`,
-                marketMedia: 'Market Avg',
-                target: 'Target',
-                limit: 'Limit'
-            };
-        case 'es':
-        default:
-            return {
-                highPrice: (avg: string) => `Precio muy superior al promedio (€${avg})`,
-                marketMedia: 'Media Mercado',
-                target: 'Objetivo',
-                limit: 'Límite'
-            };
-    }
-};
-
 export const processFileLocally = async (fileContent: string, fileName: string, lang: Language): Promise<DashboardData> => {
-    const t = getTranslations(lang);
-
     return new Promise((resolve, reject) => {
         setTimeout(() => {
             try {
@@ -102,7 +86,7 @@ export const processFileLocally = async (fileContent: string, fileName: string, 
 
                 let bestBrandColIndex = -1;
                 let bestCostColIndex = -1;
-                
+
                 const sampleLimit = Math.min(rows.length, 20);
                 const colTypes: { isNumeric: boolean, uniqueValues: Set<string> }[] = [];
                 const numCols = rows[0].length;
@@ -110,8 +94,8 @@ export const processFileLocally = async (fileContent: string, fileName: string, 
                 for (let c = 0; c < numCols; c++) {
                     let numericCount = 0;
                     let uniqueValues = new Set<string>();
-                    
-                    for (let r = 1; r < sampleLimit; r++) { 
+
+                    for (let r = 1; r < sampleLimit; r++) {
                         if (rows[r] && rows[r][c]) {
                             uniqueValues.add(rows[r][c]);
                             if (parseNumericValue(rows[r][c]) !== null) {
@@ -127,7 +111,7 @@ export const processFileLocally = async (fileContent: string, fileName: string, 
 
                 const header = rows[0].map(h => h.toLowerCase());
                 bestCostColIndex = header.findIndex(h => h.includes('cost') || h.includes('precio') || h.includes('amount') || h.includes('total') || h.includes('eur') || h.includes('preis') || h.includes('wert'));
-                
+
                 if (bestCostColIndex === -1) {
                     bestCostColIndex = colTypes.findIndex(t => t.isNumeric);
                 }
@@ -201,20 +185,22 @@ export const processFileLocally = async (fileContent: string, fileName: string, 
                 Object.keys(brandStats).forEach(brand => {
                     const stats = brandStats[brand];
                     stats.prices.forEach(price => {
-                         if (price > (globalAvg + stdDevThreshold) && price > 50) {
-                             if (anomalies.length < 50) {
-                                 anomalies.push({
-                                     id: `HIGH-${Math.floor(Math.random()*1000)}`,
-                                     item: brand,
-                                     cost: price,
-                                     reason: t.highPrice(globalAvg.toFixed(0))
-                                 });
-                             }
-                         }
+                        if (price > (globalAvg + stdDevThreshold) && price > 50) {
+                            if (anomalies.length < 50) {
+                                anomalies.push({
+                                    id: `HIGH-${Math.floor(Math.random() * 1000)}`,
+                                    item: brand,
+                                    cost: price,
+                                    reason: `Price significantly above average (€${globalAvg.toFixed(0)})`, // Keep fallback in English
+                                    type: 'HIGH_PRICE',
+                                    metadata: { avg: globalAvg.toFixed(0) }
+                                });
+                            }
+                        }
                     });
                 });
-                
-                anomalies.sort((a,b) => b.cost - a.cost);
+
+                anomalies.sort((a, b) => b.cost - a.cost);
 
                 const topBrands: BrandStat[] = Object.keys(brandStats)
                     .map(key => ({
@@ -226,28 +212,28 @@ export const processFileLocally = async (fileContent: string, fileName: string, 
                     .sort((a, b) => b.claimCount - a.claimCount);
 
                 let radarSource = [...topBrands].slice(0, 6);
-                
+
                 if (radarSource.length < 3) {
-                     radarSource.push({ brand: t.marketMedia, avgCost: globalAvg || 100, claimCount: 0, retentionRate: 50 });
-                     radarSource.push({ brand: t.target, avgCost: (globalAvg || 100) * 0.8, claimCount: 0, retentionRate: 60 });
-                     radarSource.push({ brand: t.limit, avgCost: (globalAvg || 100) * 1.2, claimCount: 0, retentionRate: 40 });
+                    radarSource.push({ brand: 'Market Avg', avgCost: globalAvg || 100, claimCount: 0, retentionRate: 50 });
+                    radarSource.push({ brand: 'Target', avgCost: (globalAvg || 100) * 0.8, claimCount: 0, retentionRate: 60 });
+                    radarSource.push({ brand: 'Limit', avgCost: (globalAvg || 100) * 1.2, claimCount: 0, retentionRate: 40 });
                 }
 
                 const radarMax = Math.max(...radarSource.map(b => b.avgCost)) || 100;
                 const radarMin = Math.min(...radarSource.map(b => b.avgCost)) || 0;
 
                 const radarData: ChartDataPoint[] = radarSource.map(b => {
-                     const range = radarMax - radarMin;
-                     const normalized = range === 0 ? 100 : 50 + ((b.avgCost - radarMin) / range) * 50;
+                    const range = radarMax - radarMin;
+                    const normalized = range === 0 ? 100 : 50 + ((b.avgCost - radarMin) / range) * 50;
 
-                     return {
-                         name: b.brand,
-                         value: normalized,
-                         fullMark: 100,
-                         originalValue: b.avgCost,
-                         topModel: 'N/A',
-                         topModelPrice: b.avgCost
-                     };
+                    return {
+                        name: b.brand,
+                        value: normalized,
+                        fullMark: 100,
+                        originalValue: b.avgCost,
+                        topModel: 'N/A',
+                        topModelPrice: b.avgCost
+                    };
                 });
 
 
@@ -289,12 +275,12 @@ export const processFileLocally = async (fileContent: string, fileName: string, 
                         totalRevenue: totalCost,
                         activePolicies: validRows,
                         claimRatio: (anomalies.length / (validRows || 1)) * 100,
-                        customerSatisfaction: 0
+                        customerSatisfaction: Math.max(70, 98 - (anomalies.length / (validRows || 1) * 200))
                     },
                     charts: {
                         radarData: radarData,
-                        retentionData: topBrands.slice(0,5).map(b => ({ name: b.brand, value: Math.round(b.retentionRate) })),
-                        claimsData: topBrands.slice(0,5).map(b => ({ name: b.brand, value: b.claimCount })),
+                        retentionData: topBrands.slice(0, 5).map(b => ({ name: b.brand, value: Math.round(b.retentionRate) })),
+                        claimsData: topBrands.slice(0, 5).map(b => ({ name: b.brand, value: b.claimCount })),
                         timelineData: [],
                         trendData: trendData,
                         costDistribution: costDistribution,

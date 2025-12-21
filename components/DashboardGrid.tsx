@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { GridLayout, verticalCompactor } from 'react-grid-layout';
 import type { Layout } from 'react-grid-layout';
-import { DashboardData, Theme, WidgetConfig, LayoutItem } from '../types';
+import { DashboardData, Theme, WidgetConfig, LayoutItem, WidgetType } from '../types';
 import { MainRadarChart, SimpleBarChart, MetricsTable, AnomalyList, TrendLineChart, CostPieChart, BrandMonthHeatmap } from './Charts';
 import { MetricCard } from './MetricCard';
 import { Euro, FileText, AlertTriangle, Zap, GripVertical } from 'lucide-react';
@@ -13,13 +13,13 @@ interface DashboardGridProps {
   theme: Theme;
   layout: LayoutItem[];
   widgets: WidgetConfig[];
-  onLayoutChange: (layout: Layout) => void;
+  onLayoutChange: (layout: Layout[]) => void;
   lang: 'es' | 'en' | 'de';
   t: any;
   editable: boolean;
 }
 
-export const DashboardGrid: React.FC<DashboardGridProps> = ({
+export const DashboardGrid = React.memo<DashboardGridProps>(({
   data,
   theme,
   layout,
@@ -29,7 +29,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
   t,
   editable
 }) => {
-  const [width, setWidth] = useState(1200);
+  const [width, setWidth] = useState(0);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,8 +44,8 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
     return () => window.removeEventListener('resize', updateWidth);
   }, []);
 
-  const getWidgetTitle = (type: WidgetType): string => {
-    switch (type) {
+  const getWidgetTitle = (widget: WidgetConfig): string => {
+    switch (widget.type) {
       case 'summary': return t.dashboard.general_summary;
       case 'radar': return t.dashboard.brand_comparison;
       case 'pie': return t.dashboard.cost_distribution;
@@ -54,13 +54,13 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
       case 'heatmap': return t.dashboard.frequency_heatmap;
       case 'metrics': return t.dashboard.metrics_table;
       case 'anomalies': return t.dashboard.anomalies;
-      default: return widgetConfig.title;
+      default: return widget.title;
     }
   };
 
   const renderWidget = useCallback((widgetConfig: WidgetConfig) => {
     if (!widgetConfig.enabled) return null;
-    const translatedTitle = getWidgetTitle(widgetConfig.type);
+    const translatedTitle = getWidgetTitle(widgetConfig);
 
     const widgetClass = `bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-100 dark:border-slate-700 p-3 flex flex-col h-full overflow-hidden`;
 
@@ -182,7 +182,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
             </h3>
             <div className="flex-1 min-h-0">
               {data.charts.trendData.length > 0 ? (
-                <TrendLineChart data={data.charts.trendData} theme={theme} />
+                <TrendLineChart data={data.charts.trendData} theme={theme} t={t} lang={lang} />
               ) : (
                 <div className="flex items-center justify-center h-full text-slate-400 text-xs">
                   {t.statistics.no_temporal_data}
@@ -206,7 +206,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
             </h3>
             <div className="flex-1 min-h-0 overflow-auto custom-scrollbar">
               {data.charts.heatmapData.length > 0 ? (
-                <BrandMonthHeatmap data={data.charts.heatmapData} theme={theme} />
+                <BrandMonthHeatmap data={data.charts.heatmapData} theme={theme} lang={lang} />
               ) : (
                 <div className="flex items-center justify-center h-full text-slate-400 text-xs">
                   {t.statistics.no_heatmap_data}
@@ -268,7 +268,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
         className="layout"
         layout={layout}
         width={width}
-        onLayoutChange={onLayoutChange}
+        onLayoutChange={onLayoutChange as any}
         compactor={verticalCompactor}
         gridConfig={{
           cols: 12,
@@ -297,4 +297,4 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
       </GridLayout>
     </div>
   );
-};
+});

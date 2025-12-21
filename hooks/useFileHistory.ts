@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { FileHistoryEntry } from '../types';
 
-const STORAGE_KEY = 'wertgarantie_file_history';
+const STORAGE_KEY = 'nordbund_file_history';
 const MAX_HISTORY_ENTRIES = 10;
 
 interface UseFileHistoryOptions {
@@ -14,9 +14,9 @@ export const useFileHistory = (options: UseFileHistoryOptions = {}) => {
   const [history, setHistory] = useState<FileHistoryEntry[]>([]);
 
   // Create user-specific storage key
-  const getStorageKey = () => {
+  const getStorageKey = useCallback(() => {
     return userId ? `${STORAGE_KEY}_${userId}` : STORAGE_KEY;
-  };
+  }, [userId]);
 
   // Load history from localStorage on mount (skip if private mode)
   useEffect(() => {
@@ -34,7 +34,7 @@ export const useFileHistory = (options: UseFileHistoryOptions = {}) => {
     } catch (error) {
       console.error('Error loading file history:', error);
     }
-  }, [privateMode, userId]);
+  }, [privateMode, userId, getStorageKey]);
 
   // Save history to localStorage whenever it changes (skip if private mode)
   useEffect(() => {
@@ -45,9 +45,9 @@ export const useFileHistory = (options: UseFileHistoryOptions = {}) => {
     } catch (error) {
       console.error('Error saving file history:', error);
     }
-  }, [history, privateMode, userId]);
+  }, [history, privateMode, userId, getStorageKey]);
 
-  const addToHistory = (entry: FileHistoryEntry) => {
+  const addToHistory = useCallback((entry: FileHistoryEntry) => {
     if (privateMode) return; // Don't save in private mode
     setHistory(prev => {
       // Remove duplicate if exists (same fileName)
@@ -59,18 +59,18 @@ export const useFileHistory = (options: UseFileHistoryOptions = {}) => {
       // Keep only MAX_HISTORY_ENTRIES
       return updated.slice(0, MAX_HISTORY_ENTRIES);
     });
-  };
+  }, [privateMode]);
 
-  const removeFromHistory = (id: string) => {
+  const removeFromHistory = useCallback((id: string) => {
     setHistory(prev => prev.filter(item => item.id !== id));
-  };
+  }, []);
 
-  const clearHistory = () => {
+  const clearHistory = useCallback(() => {
     setHistory([]);
     if (!privateMode) {
       localStorage.removeItem(getStorageKey());
     }
-  };
+  }, [privateMode, getStorageKey]);
 
   return {
     history,

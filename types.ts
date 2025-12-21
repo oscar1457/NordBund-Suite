@@ -18,6 +18,8 @@ export interface Anomaly {
   item: string;
   cost: number;
   reason: string;
+  type?: 'HIGH_PRICE' | string;
+  metadata?: Record<string, any>;
 }
 
 export interface BrandStat {

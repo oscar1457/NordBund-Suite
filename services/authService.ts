@@ -2,9 +2,9 @@ import bcrypt from 'bcryptjs';
 import CryptoJS from 'crypto-js';
 import { User, Session, UserSettings } from '../types';
 
-const USERS_STORAGE_KEY = 'wertgarantie_users';
-const SESSION_STORAGE_KEY = 'wertgarantie_session';
-const ENCRYPTION_KEY = 'wertgarantie_secure_key_2025'; // En producción, esto debería ser más seguro
+const USERS_STORAGE_KEY = 'nordbund_users';
+const SESSION_STORAGE_KEY = 'nordbund_session';
+const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY || 'nordbund_secure_key_2025'; // Fallback for transition
 
 // Encrypt data
 export const encryptData = (data: string): string => {

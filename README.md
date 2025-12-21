@@ -1,20 +1,66 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# NordBund Analytics
 
-# Run and deploy your AI Studio app
+Eine moderne und sichere Desktop-Anwendung zur Analyse von Schadensdaten, Visualisierung wichtiger Kennzahlen und Erstellung von Finanzberichten.
 
-This contains everything you need to run your app locally.
+Entwickelt mit **Tauri (Rust)** und **React (TypeScript)**, bietet sie native Leistung mit einer fortschrittlichen Web-Benutzeroberfläche.
 
-View your app in AI Studio: https://ai.studio/apps/drive/1vFRZ0HOcP0xovo0ocInF_9PYJ9LApjxH
+![Dashboard Preview](src-tauri/resources/header.bmp)
 
-## Run Locally
+---
 
-**Prerequisites:**  Node.js
+## 🚀 Hauptfunktionen
 
+*   **Interaktives Dashboard**: Visualisierung von KPIs in Echtzeit.
+*   **Zeitliche Analyse**: Trenddiagramme für Kosten und Schäden im Zeitverlauf.
+*   **Lokalisierung**: Mehrsprachige Unterstützung (Deutsch, Englisch, Spanisch), mit Deutsch als Standard.
+*   **Sicherheit**: Lokale Datenverarbeitung und Verschlüsselung.
+*   **Professioneller Installer**:  Vereinfachter nativer Windows-Installer.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+---
+
+## 🛠️ Installation
+
+### Option 1: Installer (Empfohlen)
+Laden Sie die `.exe`- oder `.msi`-Datei aus dem Releases-Ordner herunter und starten Sie den Assistenten:
+1.  Führen Sie `NordBund-setup.exe` aus.
+2.  Folgen Sie den Anweisungen auf dem Bildschirm (Sprache ist standardmäßig Deutsch).
+3.  Die Anwendung startet automatisch nach Abschluss.
+
+### Option 2: Manuelle Kompilierung (Für Entwickler)
+
+**Voraussetzungen:**
+*   Node.js (v16+)
+*   Rust (letzte stabile Version)
+*   Build Tools für Visual Studio (C++)
+
+**Schritte:**
+1.  Repository klonen:
+    ```bash
+    git clone https://github.com/oscar1457/nordbund-analytics.git
+    cd nordbund-analytics
+    ```
+2.  Abhängigkeiten installieren:
+    ```bash
+    npm install
+    ```
+3.  Im Entwicklungsmodus starten:
+    ```bash
+    npm run tauri dev
+    ```
+4.  Produktions-Installer generieren:
+    ```bash
+    npm run tauri build
+    ```
+
+---
+
+## 📂 Repository und Quellcode
+
+Der vollständige Quellcode und die technische Dokumentation sind auf GitHub verfügbar:
+
+👉 **[https://github.com/oscar1457/nordbund-analytics](https://github.com/oscar1457/nordbund-analytics)**
+
+---
+
+## 📄 Lizenz
+Copyright © 2025 Oscar Quintana. Alle Rechte vorbehalten.

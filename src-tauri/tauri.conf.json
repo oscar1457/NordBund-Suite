@@ -7,7 +7,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "Wertgarantie-analytics",
+    "productName": "NordBund-analytics",
     "version": "1.1.0"
   },
   "tauri": {
@@ -29,22 +29,28 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.wertgarantie.analytics-app",
+      "identifier": "com.nordbund.analytics-app",
       "longDescription": "Una aplicación de escritorio para analizar datos de siniestros y visualizar métricas clave.",
-      "macOS": {
-        "entitlements": null,
-        "exceptionDomain": "",
-        "frameworks": [],
-        "providerShortName": null,
-        "signingIdentity": null
-      },
+      "macOS": {},
       "resources": [],
-      "shortDescription": "Herramienta de análisis de datos de Wertgarantie.",
+      "shortDescription": "Herramienta de análisis de datos de NordBund.",
       "targets": "all",
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
-        "timestampUrl": ""
+        "timestampUrl": "",
+        "nsis": {
+          "headerImage": "resources/header.bmp",
+          "sidebarImage": "resources/sidebar.bmp",
+          "installerIcon": "icons/icon.ico",
+          "installMode": "currentUser",
+          "languages": [
+            "German",
+            "English",
+            "Spanish"
+          ],
+          "template": "./installer.nsi"
+        }
       }
     },
     "security": {
@@ -59,7 +65,7 @@
         "fullscreen": false,
         "height": 800,
         "resizable": true,
-        "title": "Wertgarantie-analytics",
+        "title": "NordBund-analytics",
         "width": 1280,
         "visible": false,
         "center": true
