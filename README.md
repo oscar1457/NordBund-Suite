@@ -6,6 +6,14 @@ Entwickelt mit **Tauri (Rust)** und **React (TypeScript)**, bietet sie native Le
 
 ---
 
+## 🌐 Web-Benutzeroberfläche
+
+Die Oberfläche ist als moderne, übersichtliche Analytics-Web-UI gestaltet. Sie fokussiert sich auf schnelle Orientierung,
+klare KPI-Karten, Trendverläufe und interaktive Diagramme, damit Auswertungen und Berichte effizient erstellt werden können.
+Die Navigation ist bewusst reduziert, um häufig genutzte Kennzahlen und Zeitvergleiche sofort sichtbar zu machen.
+
+---
+
 ## 🚀 Hauptfunktionen
 
 * **Interaktives Dashboard**: Visualisierung von KPIs in Echtzeit.
