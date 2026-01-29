@@ -4,8 +4,6 @@ Eine moderne und sichere Desktop-Suite zur Analyse von Schadensdaten, Visualisie
 
 Entwickelt mit **Tauri (Rust)** und **React (TypeScript)**, bietet sie native Leistung mit einer fortschrittlichen Web-Benutzeroberfläche.
 
-![Dashboard Preview](src-tauri/resources/header.bmp)
-
 ---
 
 ## 🚀 Hauptfunktionen
